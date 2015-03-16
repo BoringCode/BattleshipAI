@@ -1,2 +1,2 @@
 # BattleshipsAI
-A learning AI written in C++ that plays Battleships better than you best friend Nick from next door
+A learning AI written in C++ that plays Battleships better than your best friend Nick from next door
