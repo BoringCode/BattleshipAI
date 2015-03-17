@@ -2,7 +2,7 @@ CXXFLAGS = -g -Wall -O2
 CXX = g++
 
 OBJECTS = AIContest.o BoardV3.o Message.o PlayerV2.o conio.o contest.o \
-	DumbPlayerV2.o CleanPlayerV2.o
+	BJZPlayer.o CleanPlayerV2.o
 
 contest: $(OBJECTS)
 	g++ -o contest $(OBJECTS)
@@ -21,8 +21,8 @@ AIContest.o: AIContest.cpp
 AIContest.cpp: AIContest.h Message.h defines.h
 
 # Players here
-DumbPlayerV2.o: DumbPlayerV2.cpp Message.cpp
-DumbPlayerV2.cpp: DumbPlayerV2.h defines.h PlayerV2.h conio.cpp
+BJZPlayer.o: BJZPlayer.cpp Message.cpp
+BJZPlayer.cpp: BJZPlayer.h defines.h PlayerV2.h conio.cpp
 
 # CleanPlayerV2.o is only available as a linkable Linux binary, not as source code.
 CleanPlayerV2.o: 

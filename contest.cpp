@@ -24,7 +24,7 @@
 
 // Include your player here
 //	Professor's contestants
-#include "DumbPlayerV2.h"
+#include "BJZPlayer.h"
 #include "CleanPlayerV2.h"
 //#include "OrigGamblerPlayer.h"
 
@@ -202,7 +202,7 @@ PlayerV2* getPlayer( int playerId, int boardSize ) {
     switch( playerId ) {
 	// Professor provided
 	default:
-	case 0: return new DumbPlayerV2( boardSize );
+	case 0: return new BJZPlayer( boardSize );
 	case 1: return new CleanPlayerV2( boardSize );
 	//case 2: return new OrigGamblerPlayer( boardSize );
     }
