@@ -6,7 +6,6 @@
  * Please type in your name[s] here:
  */
 
-#ifndef CLEANPLAYERV2_H		// Double inclusion protection
 #define CLEANPLAYERV2_H
 
 #include "PlayerV2.h"
