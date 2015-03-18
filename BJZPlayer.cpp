@@ -39,6 +39,12 @@ void BJZPlayer::initializeBoard() {
     }
 }
 
+void BJZPlayer::initializePboard() {
+    for (int i=0; i < boardSize; i++) {
+	    for (int j=0; j < boardSize; j++) Pboard[i][j] = 0;
+    }
+}
+
 
 /**
  * Gets the computer's shot choice. This is then returned to the caller.
@@ -47,17 +53,9 @@ void BJZPlayer::initializeBoard() {
  * Position 0 of the int array should hold the row, position 1 the column.
  */
 Message BJZPlayer::getMove() {
-    lastCol++;
-    if( lastCol >= boardSize ) {
-	lastCol = 0;
-	lastRow++;
-    }
-    if( lastRow >= boardSize ) {
-	lastCol = 0;
-	lastRow = 0;
-    }
-
-    Message result( SHOT, lastRow, lastCol, "Bang", None, 1 );
+    boardP(board);
+    highestP();
+    Message result( SHOT, returnRow, returnCol, "Bang", None, 1 );
     return result;
 }
 
@@ -74,6 +72,7 @@ void BJZPlayer::newRound() {
     this->numShipsPlaced = 0;
 
     this->initializeBoard();
+    this->initializePboard();
 }
 
 /**
@@ -112,5 +111,87 @@ void BJZPlayer::update(Message msg) {
 	    cout << gotoRowCol(20, 30) << "DumbPl: opponent shot at "<< msg.getRow() << ", " << msg.getCol() << flush;
 	    break;
     }
+}
+
+
+
+
+// boardP
+void BJZPlayer::boardP(char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE]) {
+	for (int row=0; row < boardSize; row++) {
+		for (int col=0; col < boardSize; col++){
+			returnRow=row;
+			returnCol=col;
+			if (board[row][col] == WATER) {
+				Pboard[row][col] = cellP(row,col,boardSize, board);
+			}
+			else {
+				Pboard[row][col] = 0;
+			}
+		}
+	}
+}
+
+// cellP
+int BJZPlayer::cellP(int row,int col, int boardSize, char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE]){
+	int totalP=0;
+	int badSpots;
+	int hitCount;
+	for (int shipSize=3; shipSize<= 4; shipSize++) {
+		for (int end=0; end < shipSize; end++) {
+			badSpots = 0;
+			hitCount = 0;
+			for (int forward=0; forward < (shipSize - end); forward++) {
+				if ((forward+col) > (boardSize-1)) badSpots++;
+				else {
+					if (board[row][col+forward] == HIT) hitCount = hitCount + 100;
+					else if (board[row][col+forward] != WATER) badSpots++;
+				}
+			}
+			for (int back=0; back <= end; back++) {
+				if ((col-back) < 0) badSpots++;
+				else {
+					if (board[row][col-back] == HIT) hitCount = hitCount + 100;
+					else if (board[row][col-back] != WATER) badSpots++;
+				}
+			}
+			if (badSpots == 0) totalP = totalP + 1 + hitCount;
+		}
+		for (int end=0; end < shipSize; end++) {
+			badSpots = 0;
+			hitCount = 0;
+			for (int up=0; up < (shipSize - end); up++) {
+				if ((row-up) < 0) badSpots++;
+				else {
+					if (board[row-up][col] == HIT) hitCount = hitCount + 100;
+					else if (board[row-up][col] != WATER) badSpots++;
+				}
+			}
+			for (int down=0; down <= end; down++) {
+				if ((row+down) > boardSize-1) badSpots++;
+				else {
+					if (board[row+down][col] == HIT) hitCount = hitCount + 100;
+					else if (board[row+down][col] != WATER) badSpots++;
+				}
+			}
+			if (badSpots == 0) totalP = totalP + 1 + hitCount;
+		}
+	}
+	return totalP;
+}
+
+// highestP
+void BJZPlayer::highestP() {
+	int highestP = 0;
+	for (int row=0; row < boardSize; row++) {
+		cout << endl;
+		for (int col=0; col < boardSize; col++){
+			if (Pboard[row][col] > highestP) {
+				returnRow = row;
+				returnCol = col;
+				highestP = Pboard[row][col];
+			}
+		}
+	}
 }
 
