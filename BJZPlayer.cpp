@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <cstdio>
-
 #include "conio.h"
 #include "BJZPlayer.h"
 
@@ -20,7 +19,12 @@ using namespace conio;
 BJZPlayer::BJZPlayer( int boardSize ):
     PlayerV2(boardSize)
 {
-    // Could do any initialization of inter-round data structures here.
+	//Initialize enemy shot board for ship placement
+	for(int row=0; row<boardSize; row++) {
+		for(int col=0; col<boardSize; col++) {
+			this->enemyShotBoard[row][col] = 0;
+		}
+	}
 }
 
 /**
@@ -43,6 +47,27 @@ void BJZPlayer::initializePboard() {
     for (int i=0; i < boardSize; i++) {
 	    for (int j=0; j < boardSize; j++) Pboard[i][j] = 0;
     }
+	cout << "Enemy ship board " <<  enemyShipBoard.size() << endl;
+	int* hit = enemyShipBoard.front();
+	enemyShipBoard.pop();
+	cout << "Row " << hit[0] << " Col " << hit[1] << endl;
+	int* hit2 = enemyShipBoard.front();
+	enemyShipBoard.pop();
+	cout << "Row " << hit2[0] << " Col " << hit2[1] << endl;
+	/*
+	for (size_t i=0; i < enemyShipBoard.size(); i++) {
+		hit = enemyShipBoard.front();
+		enemyShipBoard.pop();
+		cout << "Row " << hit[0] << " Col " << hit[1] << endl;
+		//Pboard[hit[0]][hit[1]]++;
+		//enemyShipBoard.push(hit);
+	}*/	
+	for (int row=0; row < boardSize; row++) {
+		cout << endl;
+		for (int col=0; col<boardSize; col++) {
+			cout << Pboard[row][col] << " ";
+		}
+	}
 }
 
 
@@ -101,15 +126,18 @@ Message BJZPlayer::placeShip(int length) {
 void BJZPlayer::update(Message msg) {
     switch(msg.getMessageType()) {
 	case HIT:
+		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
+		recordHit(msg);
+		break;
 	case KILL:
+		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
+		break;
 	case MISS:
 	    board[msg.getRow()][msg.getCol()] = msg.getMessageType();
 	    break;
 	case OPPONENT_SHOT:
-	    // TODO: get rid of the cout, but replace in your AI with code that does something
-	    // useful with the information about where the opponent is shooting.
-	    cout << gotoRowCol(20, 30) << "DumbPl: opponent shot at "<< msg.getRow() << ", " << msg.getCol() << flush;
-	    break;
+		enemyShotBoard[msg.getRow()][msg.getCol()]++;
+		break;
     }
 }
 
@@ -194,4 +222,11 @@ void BJZPlayer::highestP() {
 		}
 	}
 }
+
+void BJZPlayer::recordHit(Message msg) {
+	int hit[2] = {msg.getRow(), msg.getCol()};
+	cout << endl << "                                                Hit row " << hit[0] << " hit col " << hit[1] << endl;
+	enemyShipBoard.push(hit);
+}
+
 
