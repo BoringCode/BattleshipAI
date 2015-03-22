@@ -17,7 +17,7 @@ using namespace conio;
  * @param boardSize Indication of the size of the board that is in use.
  */
 BJZPlayer::BJZPlayer( int boardSize ):
-    PlayerV2(boardSize)
+	PlayerV2(boardSize)
 {
 	//Initialize enemy shot board for ship placement
 	for(int row=0; row<boardSize; row++) {
@@ -34,34 +34,41 @@ BJZPlayer::~BJZPlayer( ) {}
 
 /*
  * Private internal function that initializes a MAX_BOARD_SIZE 2D array of char to water.
+ * Also sets a board for where we set our own ships
  */
 void BJZPlayer::initializeBoard() {
-    for(int row=0; row<boardSize; row++) {
-	for(int col=0; col<boardSize; col++) {
-	    this->board[row][col] = WATER;
-		// set place ships to 0s
-		this->placedShipsBoard[row][col] = 0;
+	for(int row=0; row<boardSize; row++) {
+		for(int col=0; col<boardSize; col++) {
+			this->board[row][col] = WATER;
+			// set place ships to 0s
+			this->placedShipsBoard[row][col] = 0;
+		}
 	}
-    }
 }
 
+/*
+ * Intializes our propability board for the round
+ */
 void BJZPlayer::initializePboard() {
-    for (int i=0; i < boardSize; i++) {
-	    for (int j=0; j < boardSize; j++) Pboard[i][j] = P_DEFAULT;
-    }
+	//Set each cell to the default value
+	for (int i=0; i < boardSize; i++) {
+		for (int j=0; j < boardSize; j++) Pboard[i][j] = P_DEFAULT;
+	}
+	//Gets enemy ship history, and increments each cell accordingly
 	for (size_t i = 0; i < this->enemyShipPlacementHistory.size(); i++) {
 		Message a = enemyShipPlacementHistory.front();
 		enemyShipPlacementHistory.pop();
 		enemyShipPlacementHistory.push(a);
 		Pboard[a.getRow()][a.getCol()] = Pboard[a.getRow()][a.getCol()] + P_HISTORY;
 	}
-	//Print probablity board at beginning of round
+	//Print probablity board at beginning of round, for testing purposes only
 	/*for (int row=0; row < boardSize; row++) {
 		cout << endl;
 		for (int col=0; col<boardSize; col++) {
 			cout << Pboard[row][col] << " ";
 		}
-	}*/
+	  }
+	*/
 }
 
 
@@ -72,10 +79,13 @@ void BJZPlayer::initializePboard() {
  * Position 0 of the int array should hold the row, position 1 the column.
  */
 Message BJZPlayer::getMove() {
-    boardP(board);
-    highestP();
-    Message result( SHOT, returnRow, returnCol, "Bang", None, 1 );
-    return result;
+	//Recalculates the propability for each cell
+	boardP(board);
+	//Gets the cell with the highest propability
+	highestP();
+	//Returns the shot
+	Message result( SHOT, returnRow, returnCol, "Bang", None, 1 );
+	return result;
 }
 
 /**
@@ -83,18 +93,16 @@ Message BJZPlayer::getMove() {
  * The AI show reinitialize any intra-round data structures.
  */
 void BJZPlayer::newRound() {
-    /* DumbPlayer is too simple to do any inter-round learning. Smarter players reinitialize any
-     * round-specific data structures here.
-     */
-    this->lastRow = 0;
-    this->lastCol = -1;
-    this->numShipsPlaced = 0;
+	this->lastRow = 0;
+	this->lastCol = -1;
+	this->numShipsPlaced = 0;
+	//Resets the ship lengths queue
 	while(!shipLengths.empty()) {
 		shipLengths.pop();
 	}	
-	
-    this->initializeBoard();
-    this->initializePboard();
+	//Initializes our game boards
+	this->initializeBoard();
+	this->initializePboard();
 }
 
 /**
@@ -109,54 +117,58 @@ Message BJZPlayer::placeShip(int length) {
 	// Create ship names each time called: Ship0, Ship1, Ship2, ...
 	snprintf(shipName, sizeof shipName, "Ship%d", numShipsPlaced);
 	shipLengths.push(length);
-
+	//Set return variables
 	int minShipScore = -1;
 	int row = 0;
 	int col = 0;
 	Direction Orientation = Horizontal;
-	
+	//Used to calculate the socre of each possible ship location
 	int eachScore;
-
 	bool validSpot = true;
+	//Loop through each possible cell
 	for(int i = 0; i < boardSize; i++) {
 		for(int j = 0; j < boardSize; j++) {
+			//If a ship already exists at this location, don't continue
 			if (placedShipsBoard[i][j] == 1) { break; }
 			// check horizontal
+			//Make sure that ship could fit from the current location to the edge of the board
 			if (j+length-1 < boardSize) {
+				//Calculate the socre
 				eachScore = 0;
 				for(int cl = j; cl < j+length; cl++) {
+					//Ship already exists at this location, stop searching
 					if (placedShipsBoard[i][cl] == 1) { validSpot = false; break; }
+					//Score comes from how many times our enemy has shot at this location
 					eachScore += enemyShotBoard[i][cl];
 				}
-				if (!validSpot) {
-					validSpot = true;
-					break;
-				}
-				if (eachScore <= minShipScore || minShipScore == -1) {
+				//Make sure I can place a ship here and that the score is lower than the current minimum
+				if (validSpot && (eachScore <= minShipScore || minShipScore == -1)) {
 					row = i;
 					col = j;
 					minShipScore = eachScore;
 					Orientation = Horizontal;
 				}
+				//Reset valid spot
+				validSpot = true;
 			}
 
 			// check vertical	
+			//Make sure that I can fit vertically at the current row
 			if (i+length-1 < boardSize) {
 				eachScore = 0;
 				for(int rw = i; rw < i+length; rw++) {
 					if (placedShipsBoard[rw][j] == 1) { validSpot = false; break; }
 					eachScore += enemyShotBoard[rw][j];
 				}
-				if (!validSpot) {
-					validSpot = true;
-					break;
-				}
-				if (eachScore <= minShipScore || minShipScore == -1) {
+				//Ensure validity and minumum score
+				if (validSpot && (eachScore <= minShipScore || minShipScore == -1)) {
 					row = i;
 					col = j;
 					minShipScore = eachScore;
 					Orientation = Vertical;
 				}
+				//Reset valid spot
+				validSpot = true;
 			}		
 		}
 	}
@@ -180,48 +192,51 @@ Message BJZPlayer::placeShip(int length) {
  * @param msg Message specifying what happened + row/col as appropriate.
  */
 void BJZPlayer::update(Message msg) {
-    switch(msg.getMessageType()) {
-	case HIT:
-		updateEnemyShipPlacementHistory(msg);
-		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
-		break;
-	case KILL:
-		updateEnemyShipPlacementHistory(msg);
-		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
-		break;
-	case MISS:
-	    board[msg.getRow()][msg.getCol()] = msg.getMessageType();
-	    break;
-	case OPPONENT_SHOT:
-		enemyShotBoard[msg.getRow()][msg.getCol()]++;
-		break;
-    }
+	switch(msg.getMessageType()) {
+		case HIT:
+			updateEnemyShipPlacementHistory(msg);
+			board[msg.getRow()][msg.getCol()] = msg.getMessageType();
+			break;
+		case KILL:
+			updateEnemyShipPlacementHistory(msg);
+			board[msg.getRow()][msg.getCol()] = msg.getMessageType();
+			break;
+		case MISS:
+			board[msg.getRow()][msg.getCol()] = msg.getMessageType();
+			break;
+		case OPPONENT_SHOT:
+			enemyShotBoard[msg.getRow()][msg.getCol()]++;
+			break;
+	}
 }
 
-
-
-
-// boardP
+/**
+ * Sets propability board for each move
+ *
+ */
 void BJZPlayer::boardP(char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE]) {
 	for (int row=0; row < boardSize; row++) {
 		for (int col=0; col < boardSize; col++){
 			returnRow=row;
 			returnCol=col;
+			//Only calculate the cell's propability if it's an empty spot
 			if (board[row][col] == WATER) {
 				Pboard[row][col] = cellP(row,col,boardSize, board);
-			}
-			else {
+			} else {
 				Pboard[row][col] = P_DEFAULT;
 			}
 		}
 	}
 }
 
-// cellP
+/**
+ * Calculates cell propability
+ */
 int BJZPlayer::cellP(int row,int col, int boardSize, char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE]){
 	int totalP=0;
 	int badSpots;
 	int hitCount;
+	//Loop through possible ship sizes, this should be changed to the min and max lengths that were passed to us
 	for (int shipSize=3; shipSize<= 4; shipSize++) {
 		for (int end=0; end < shipSize; end++) {
 			badSpots = 0;
@@ -265,7 +280,9 @@ int BJZPlayer::cellP(int row,int col, int boardSize, char board[MAX_BOARD_SIZE][
 	return totalP;
 }
 
-// highestP
+/*
+ * Calculates the highest cell propability
+ */
 void BJZPlayer::highestP() {
 	int highestP = 0;
 	for (int row=0; row < boardSize; row++) {
@@ -279,15 +296,17 @@ void BJZPlayer::highestP() {
 	}
 }
 
-// updateEnemyShipPlacementHistory
+/*
+ * Updates the enemy ship placement history on each shot
+ */
 void BJZPlayer::updateEnemyShipPlacementHistory(Message msg) {
 	//To prevent ship history from overpowering our propability algorithim, dump history after a certain point
 	if (this->enemyShipPlacementHistory.size() > 30*shipLengths.size()) {
 		this->enemyShipPlacementHistory.pop();
 	}
+	//On kill, we will be messaged the previous spots again. Since we only want unique spots in the queue we must make sure we haven't proccessed it yet
 	if (board[msg.getRow()][msg.getCol()] == WATER) {
 		this->enemyShipPlacementHistory.push(msg);
 	}
 }
-
 
