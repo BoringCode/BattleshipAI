@@ -113,7 +113,7 @@ int main() {
 		//if( count==0 ) {
 		    game = new AIContest( player1, playerNames[player1Id], 
 					  player2, playerNames[player2Id],
-					  boardSize, true /* !silent */ );
+					  boardSize, false /* !silent */ );
 		    game->play( secondsPerMove, totalCountedMoves, player1Won, player2Won );
 		/*
 		} 
@@ -159,7 +159,7 @@ int main() {
 		    (float)statsShotsTaken[player2Id]/(float)statsGamesCounted[player2Id])
 		 << ")" << endl;
 	    cout << "********************" << endl;
-	    //usleep(10000000);	// Pause 10 seconds to let viewers see stats
+	    usleep(10000000);	// Pause 10 seconds to let viewers see stats
 	}
     }
     cout << endl << endl;
