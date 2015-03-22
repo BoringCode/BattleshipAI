@@ -133,7 +133,7 @@ void AIContest::clearScreen() {
 void AIContest::snooze( float seconds ) {
     // usleep() takes argument in microseconds, so need to convert seconds to microseconds.
     long sleepTime = long(1000000 * seconds);
-    usleep(sleepTime);
+    //usleep(sleepTime);
 }
 
 void AIContest::updateAI(PlayerV2 *player, BoardV3 *board) {

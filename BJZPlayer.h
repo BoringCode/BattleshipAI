@@ -18,6 +18,12 @@ using namespace std;
 
 // DumbPlayer inherits from/extends PlayerV2
 
+//Probability numbers
+const int P_HISTORY = 5;
+const int P_SHIPFOUND = 100;
+const int P_DEFAULT = 0; 
+
+
 class BJZPlayer: public PlayerV2 {
     public:
 	BJZPlayer( int boardSize );
@@ -37,9 +43,9 @@ class BJZPlayer: public PlayerV2 {
 	int cellP(int row,int col, int boardSize, char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE]);
 	void updateEnemyShipPlacementHistory(Message msg);
 	
-
 	//data
 	int numShipsPlaced;
+	queue<int> shipLengths;
         char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 	int Pboard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 	int returnRow;
@@ -49,6 +55,7 @@ class BJZPlayer: public PlayerV2 {
 	queue<Message> enemyShipPlacementHistory;
 	int enemyShotBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];	
 	
+	int placedShipsBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 };
 
 #endif
