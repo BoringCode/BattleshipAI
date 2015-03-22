@@ -47,20 +47,24 @@ void BJZPlayer::initializePboard() {
     for (int i=0; i < boardSize; i++) {
 	    for (int j=0; j < boardSize; j++) Pboard[i][j] = 0;
     }
-	cout << "Enemy ship board " <<  enemyShipBoard.size() << endl;
-	int* hit = enemyShipBoard.front();
-	enemyShipBoard.pop();
-	cout << "Row " << hit[0] << " Col " << hit[1] << endl;
-	int* hit2 = enemyShipBoard.front();
-	enemyShipBoard.pop();
-	cout << "Row " << hit2[0] << " Col " << hit2[1] << endl;
-	/*
-	for (size_t i=0; i < enemyShipBoard.size(); i++) {
-		hit = enemyShipBoard.front();
-		enemyShipBoard.pop();
+	if (!enemyShipPlacementHistory.empty()) {
+		cout << "Enemy ship board " <<  this->enemyShipPlacementHistory.size() << endl;
+		int* hit = this->enemyShipPlacementHistory.front();
+		this->enemyShipPlacementHistory.pop();
+		cout << "Row " << hit[0] << " Col " << hit[1] << endl;
+/*		if (!enemyShipPlacementHistory.empty()) {
+			int* hit2 = enemyShipPlacementHistory.front();
+			enemyShipPlacementHistory.pop();
+			cout << "Row " << hit2[0] << " Col " << hit2[1] << endl;
+		}*/
+	}
+/*
+	for (size_t i=0; i < enemyShipPlacementHistory.size(); i++) {
+		hit = enemyShipPlacementHistory.front();
+		enemyShipPlacementHistory.pop();
 		cout << "Row " << hit[0] << " Col " << hit[1] << endl;
 		//Pboard[hit[0]][hit[1]]++;
-		//enemyShipBoard.push(hit);
+		//enemyShipPlacementHistory.push(hit);
 	}*/	
 	for (int row=0; row < boardSize; row++) {
 		cout << endl;
@@ -127,7 +131,7 @@ void BJZPlayer::update(Message msg) {
     switch(msg.getMessageType()) {
 	case HIT:
 		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
-		recordHit(msg);
+		updateEnemyShipPlacementHistory(msg);
 		break;
 	case KILL:
 		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
@@ -223,10 +227,13 @@ void BJZPlayer::highestP() {
 	}
 }
 
-void BJZPlayer::recordHit(Message msg) {
+// updateEnemyShipPlacementHistory
+void BJZPlayer::updateEnemyShipPlacementHistory(Message msg) {
 	int hit[2] = {msg.getRow(), msg.getCol()};
 	cout << endl << "                                                Hit row " << hit[0] << " hit col " << hit[1] << endl;
-	enemyShipBoard.push(hit);
+	enemyShipPlacementHistory.push(hit);
+	int* a = enemyShipPlacementHistory.front();
+	cout << endl << "                                                enemyShipPlacementHistory recorded row " << a[0] << " and col " << a[1] << endl;
 }
 
 
