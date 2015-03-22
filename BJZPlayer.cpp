@@ -244,14 +244,14 @@ int BJZPlayer::cellP(int row,int col, int boardSize, char board[MAX_BOARD_SIZE][
 			for (int forward=0; forward < (shipSize - end); forward++) {
 				if ((forward+col) > (boardSize-1)) badSpots++;
 				else {
-					if (board[row][col+forward] == HIT) hitCount = hitCount + P_SHIPFOUND;
+					if (board[row][col+forward] == HIT) hitCount = hitCount + (P_SHIPFOUND / forward);
 					else if (board[row][col+forward] != WATER) badSpots++;
 				}
 			}
 			for (int back=0; back <= end; back++) {
 				if ((col-back) < 0) badSpots++;
 				else {
-					if (board[row][col-back] == HIT) hitCount = hitCount + P_SHIPFOUND;
+					if (board[row][col-back] == HIT) hitCount = hitCount + (P_SHIPFOUND / back);
 					else if (board[row][col-back] != WATER) badSpots++;
 				}
 			}
@@ -263,14 +263,14 @@ int BJZPlayer::cellP(int row,int col, int boardSize, char board[MAX_BOARD_SIZE][
 			for (int up=0; up < (shipSize - end); up++) {
 				if ((row-up) < 0) badSpots++;
 				else {
-					if (board[row-up][col] == HIT) hitCount = hitCount + P_SHIPFOUND;
+					if (board[row-up][col] == HIT) hitCount = hitCount + (P_SHIPFOUND / up);
 					else if (board[row-up][col] != WATER) badSpots++;
 				}
 			}
 			for (int down=0; down <= end; down++) {
 				if ((row+down) > boardSize-1) badSpots++;
 				else {
-					if (board[row+down][col] == HIT) hitCount = hitCount + P_SHIPFOUND;
+					if (board[row+down][col] == HIT) hitCount = hitCount + (P_SHIPFOUND / down);
 					else if (board[row+down][col] != WATER) badSpots++;
 				}
 			}

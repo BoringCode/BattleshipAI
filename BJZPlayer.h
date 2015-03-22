@@ -19,7 +19,7 @@ using namespace std;
 // DumbPlayer inherits from/extends PlayerV2
 
 //Probability numbers
-const int P_HISTORY = 5;
+const int P_HISTORY = 20;
 const int P_SHIPFOUND = 100;
 const int P_DEFAULT = 0; 
 
