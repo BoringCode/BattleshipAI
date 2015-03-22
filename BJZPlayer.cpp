@@ -47,31 +47,19 @@ void BJZPlayer::initializePboard() {
     for (int i=0; i < boardSize; i++) {
 	    for (int j=0; j < boardSize; j++) Pboard[i][j] = 0;
     }
-	if (!enemyShipPlacementHistory.empty()) {
-		cout << "Enemy ship board " <<  this->enemyShipPlacementHistory.size() << endl;
-		int* hit = this->enemyShipPlacementHistory.front();
-		this->enemyShipPlacementHistory.pop();
-		cout << "Row " << hit[0] << " Col " << hit[1] << endl;
-/*		if (!enemyShipPlacementHistory.empty()) {
-			int* hit2 = enemyShipPlacementHistory.front();
-			enemyShipPlacementHistory.pop();
-			cout << "Row " << hit2[0] << " Col " << hit2[1] << endl;
-		}*/
-	}
-/*
-	for (size_t i=0; i < enemyShipPlacementHistory.size(); i++) {
-		hit = enemyShipPlacementHistory.front();
+	for (size_t i = 0; i < this->enemyShipPlacementHistory.size(); i++) {
+		Message a = enemyShipPlacementHistory.front();
 		enemyShipPlacementHistory.pop();
-		cout << "Row " << hit[0] << " Col " << hit[1] << endl;
-		//Pboard[hit[0]][hit[1]]++;
-		//enemyShipPlacementHistory.push(hit);
-	}*/	
-	for (int row=0; row < boardSize; row++) {
+		enemyShipPlacementHistory.push(a);
+		Pboard[a.getRow()][a.getCol()] = Pboard[a.getRow()][a.getCol()] + 5;
+	}
+	//Print probablity board at beginning of round
+	/*for (int row=0; row < boardSize; row++) {
 		cout << endl;
 		for (int col=0; col<boardSize; col++) {
 			cout << Pboard[row][col] << " ";
 		}
-	}
+	}*/
 }
 
 
@@ -130,10 +118,11 @@ Message BJZPlayer::placeShip(int length) {
 void BJZPlayer::update(Message msg) {
     switch(msg.getMessageType()) {
 	case HIT:
-		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
 		updateEnemyShipPlacementHistory(msg);
+		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
 		break;
 	case KILL:
+		updateEnemyShipPlacementHistory(msg);
 		board[msg.getRow()][msg.getCol()] = msg.getMessageType();
 		break;
 	case MISS:
@@ -229,11 +218,9 @@ void BJZPlayer::highestP() {
 
 // updateEnemyShipPlacementHistory
 void BJZPlayer::updateEnemyShipPlacementHistory(Message msg) {
-	int hit[2] = {msg.getRow(), msg.getCol()};
-	cout << endl << "                                                Hit row " << hit[0] << " hit col " << hit[1] << endl;
-	enemyShipPlacementHistory.push(hit);
-	int* a = enemyShipPlacementHistory.front();
-	cout << endl << "                                                enemyShipPlacementHistory recorded row " << a[0] << " and col " << a[1] << endl;
+	if (board[msg.getRow()][msg.getCol()] == WATER) {
+		this->enemyShipPlacementHistory.push(msg);
+	}
 }
 
 

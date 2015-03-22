@@ -46,7 +46,7 @@ class BJZPlayer: public PlayerV2 {
 	int returnCol;
         int lastRow;
         int lastCol;
-	queue<int *> enemyShipPlacementHistory;
+	queue<Message> enemyShipPlacementHistory;
 	int enemyShotBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];	
 	
 };
