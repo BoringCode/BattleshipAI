@@ -129,7 +129,7 @@ Message BJZPlayer::placeShip(int length) {
 	for(int i = 0; i < boardSize; i++) {
 		for(int j = 0; j < boardSize; j++) {
 			//If a ship already exists at this location, don't continue
-			if (placedShipsBoard[i][j] == 1) { cout << "Invalid ship location found, stopping" << i << " " << j << endl; continue; }
+			if (placedShipsBoard[i][j] == 1) { continue; }
 			// check horizontal
 			//Make sure that ship could fit from the current location to the edge of the board
 			if (j+length-1 < boardSize) {
