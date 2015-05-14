@@ -25,8 +25,8 @@
 // Include your player here
 //	Professor's contestants
 #include "BJZPlayer.h"
-#include "CleanPlayerV2.h"
-//#include "OrigGamblerPlayer.h"
+//#include "CleanPlayerV2.h"
+#include "OrigGamblerPlayerV2.h"
 
 
 PlayerV2* getPlayer( int playerId, int boardSize );
@@ -52,8 +52,8 @@ int main() {
     int statsShotsTaken[NumPlayers];
     int statsGamesCounted[NumPlayers];
     string playerNames[NumPlayers] = { 
-	"Dumb Player",
-	"Clean Player",
+	"BJZ Player",
+	"Gambler Player",
     };
 
     // Initialize various win statistics 
@@ -203,8 +203,8 @@ PlayerV2* getPlayer( int playerId, int boardSize ) {
 	// Professor provided
 	default:
 	case 0: return new BJZPlayer( boardSize );
-	case 1: return new CleanPlayerV2( boardSize );
-	//case 2: return new OrigGamblerPlayer( boardSize );
+	//case 2: return new CleanPlayerV2( boardSize );
+	case 1: return new OrigGamblerPlayerV2( boardSize );
     }
 }
 
