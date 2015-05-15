@@ -52,14 +52,17 @@ void BJZPlayer::initializeBoard() {
 void BJZPlayer::initializePboard() {
 	//Set each cell to the default value
 	for (int i=0; i < boardSize; i++) {
-		for (int j=0; j < boardSize; j++) Pboard[i][j] = P_DEFAULT;
+		for (int j=0; j < boardSize; j++) {
+			Pboard[i][j] = P_DEFAULT;
+			HPBoard[i][j] = P_DEFAULT;
+		}
 	}
 	//Gets enemy ship history, and increments each cell accordingly
 	for (size_t i = 0; i < this->enemyShipPlacementHistory.size(); i++) {
 		Message a = enemyShipPlacementHistory.front();
 		enemyShipPlacementHistory.pop();
 		enemyShipPlacementHistory.push(a);
-		Pboard[a.getRow()][a.getCol()] = Pboard[a.getRow()][a.getCol()] + P_HISTORY;
+		HPBoard[a.getRow()][a.getCol()] = HPBoard[a.getRow()][a.getCol()] + P_HISTORY;
 	}
 	//Print probablity board at beginning of round, for testing purposes only
 	/*for (int row=0; row < boardSize; row++) {
@@ -96,6 +99,11 @@ void BJZPlayer::newRound() {
 	this->lastRow = 0;
 	this->lastCol = -1;
 	this->numShipsPlaced = 0;
+
+	this->killCount = 0;
+	this->prevKillCount = 0;
+	this->reportingKill = false;
+
 	//Resets the ship lengths queue
 	while(!shipLengths.empty()) {
 		shipLengths.pop();
@@ -192,12 +200,17 @@ Message BJZPlayer::placeShip(int length) {
  * @param msg Message specifying what happened + row/col as appropriate.
  */
 void BJZPlayer::update(Message msg) {
+	if (msg.getMessageType() != KILL && reportingKill) {
+		this->reportKill();
+	}
 	switch(msg.getMessageType()) {
 		case HIT:
 			updateEnemyShipPlacementHistory(msg);
 			board[msg.getRow()][msg.getCol()] = msg.getMessageType();
 			break;
 		case KILL:
+			reportingKill = true;
+			killCount++;
 			updateEnemyShipPlacementHistory(msg);
 			board[msg.getRow()][msg.getCol()] = msg.getMessageType();
 			break;
@@ -208,6 +221,35 @@ void BJZPlayer::update(Message msg) {
 			enemyShotBoard[msg.getRow()][msg.getCol()]++;
 			break;
 	}
+}
+
+/* Report kills and remove them from the ship lengths array */
+void BJZPlayer::reportKill() {
+	int length = 0;
+	for (size_t i = 0; i < this->shipLengths.size(); i++) {
+		length = this->shipLengths.front();
+		this->shipLengths.pop();
+		if (length == killCount) break;
+		this->shipLengths.push(length);
+	}
+	this->reportingKill = false;
+	this->prevKillCount = this->prevKillCount + this->killCount;
+	this->killCount = -(this->prevKillCount);
+}
+
+/* Get minimum ship length */
+int BJZPlayer::minShipLength() {
+	int minLength = -1;
+	int length = 0;
+	for (size_t i = 0; i < this->shipLengths.size(); i++) {
+		length = this->shipLengths.front();
+		this->shipLengths.pop();
+		if (minLength < 0 || length < minLength) {
+			minLength = length;
+		}
+		this->shipLengths.push(length);
+	}
+	return minLength;
 }
 
 /**
@@ -233,11 +275,11 @@ void BJZPlayer::boardP(char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE]) {
  * Calculates cell propability
  */
 int BJZPlayer::cellP(int row,int col, int boardSize, char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE]){
-	int totalP=0;
+	int totalP=HPBoard[row][col];
 	int badSpots;
 	int hitCount;
 	//Loop through possible ship sizes, this should be changed to the min and max lengths that were passed to us
-	for (int shipSize=3; shipSize<= 4; shipSize++) {
+	for (int shipSize=minShipLength(); shipSize<= 4; shipSize++) {
 		for (int end=0; end < shipSize; end++) {
 			badSpots = 0;
 			hitCount = 0;

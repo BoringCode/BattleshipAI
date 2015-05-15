@@ -203,7 +203,7 @@ PlayerV2* getPlayer( int playerId, int boardSize ) {
 	// Professor provided
 	default:
 	case 0: return new BJZPlayer( boardSize );
-	//case 2: return new CleanPlayerV2( boardSize );
+	//case 1: return new CleanPlayerV2( boardSize );
 	case 1: return new OrigGamblerPlayerV2( boardSize );
     }
 }

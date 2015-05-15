@@ -19,7 +19,7 @@ using namespace std;
 // DumbPlayer inherits from/extends PlayerV2
 
 //Probability numbers
-const int P_HISTORY = 20;
+const int P_HISTORY = 0;
 const int P_SHIPFOUND = 100;
 const int P_DEFAULT = 0; 
 
@@ -32,9 +32,11 @@ class BJZPlayer: public PlayerV2 {
 	Message placeShip(int length);
 	Message getMove();
 	void update(Message msg);
-
+    
     private:
 	
+	queue<int> shipLengths;
+
 	//functions
 	void initializeBoard();
 	void initializePboard();
@@ -45,9 +47,9 @@ class BJZPlayer: public PlayerV2 {
 	
 	//data
 	int numShipsPlaced;
-	queue<int> shipLengths;
         char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 	int Pboard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+	int HPBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 	int returnRow;
 	int returnCol;
         int lastRow;
@@ -56,6 +58,12 @@ class BJZPlayer: public PlayerV2 {
 	int enemyShotBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];	
 	
 	int placedShipsBoard[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+	
+	int minShipLength();
+	void reportKill();
+	int killCount;
+	int prevKillCount;
+	bool reportingKill;
 };
 
 #endif
