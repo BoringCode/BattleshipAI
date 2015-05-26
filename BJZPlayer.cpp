@@ -1,8 +1,6 @@
 /**
- * @author Stefan Brandle, Jonathan Geisler
- * @date September, 2004 Updated 2015 for multi-round play.
- *
- * Please type in your name[s] here:
+ * @author Bradley Rosenfeld, Jacob Jin, Zach Alford
+ * @date April, 2015
  */
 
 #include <iostream>
